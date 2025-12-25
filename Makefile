@@ -1,9 +1,19 @@
 
+#************************************ run - uvicorn - app
+run_app11_lin:
+	./venv/bin/uvicorn app11.main:app --host 0.0.0.0 --port 8000 --reload
 
+run_app22_lin:
+	./venv/bin/uvicorn app22.main:app --host 0.0.0.0 --port 8002 --reload
 
 #************************************ run - uvicorn - app
-run_app:
-	venv/bin/uvicorn app11.main:app --host 0.0.0.0 --port 8000 --reload
+run_app11_win:
+	.\venv\Scripts\uvicorn.exe app11.main:app --host 0.0.0.0 --port 8000 --reload
+
+run_app22_win:
+	.\venv\Scripts\uvicorn.exe app22.main:app --host 0.0.0.0 --port 8002 --reload
+
+
 
 #************************************ create - 172.20.0.0/16 - docker network
 create-net:

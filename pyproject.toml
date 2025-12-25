@@ -3,5 +3,65 @@ name = "fast-api-two-1"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
+
 requires-python = ">=3.11"
-dependencies = []
+
+dependencies = [
+    "aiohttp==3.13.2",
+    "celery==5.6.0",
+    "fastapi==0.127.0",
+    "multipledispatch==1.0.0",
+    "pydantic==2.12.5",
+    "python-dotenv==1.2.1",
+    "sqlalchemy==2.0.45",
+    "starlette==0.50.0",
+    "typing-extensions==4.15.0",
+    "uvicorn==0.40.0",
+]
+
+
+
+[tool.ruff.lint]
+ignore = [
+    "F401",
+    "E402",
+    "F541"
+]
+
+[tool.ruff]
+line-length = 120
+indent-width = 4
+exclude = [
+    ".git",
+    "log",
+    ".mypy_cache",
+    ".ruff_cache",
+    ".venv",
+    "venv",
+    ".vscode",
+    "__pypackages__",
+    "__pycache__",
+    "_build",
+    "build",
+    "dist",
+    "node_modules",
+    "site-packages"
+]
+
+
+
+[tool.black]
+line-length = 120
+exclude = '''
+/(
+  # directories
+  \.venv
+  | venv
+  | \.git
+  | \.log
+  | \.mypy_cache
+  | \.tox
+  | build
+  | dist
+)/
+'''
