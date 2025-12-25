@@ -1,0 +1,142 @@
+from typing import Optional, List
+from pydantic import BaseModel
+from enum import Enum
+from datetime import datetime
+
+
+# ***************************************************************************************
+# QUERY : get-create to dataBase =================================================
+# ---------------------------------------------------------------------------------------
+# schemas is used when : get(GET), create(POST), update(PUT) a Order(Base)
+class OrderGetQuery(BaseModel):
+    id: Optional[int] = None
+    created_at: Optional[datetime] = None
+    promocode: Optional[str] = None
+
+
+class OrderCreateBody(BaseModel):
+    promocode: Optional[str] = None
+
+
+class OrderUpdateBody(BaseModel):
+    promocode: Optional[str] = None
+
+
+class OrderGetAllOrderbyQuery(str, Enum):
+    id: str = "id"
+    time: str = "time"
+    promocode: str = "promocode"
+
+
+class OrderGetOrderbyList(BaseModel):
+    order_by_list: List[OrderGetAllOrderbyQuery] = ["id"]
+# ---------------------------------------------------------------------------------------
+
+
+# schemas are used when : get(GET), create(POST), update(PUT) a Product(Base)
+class ProductGetQuery(BaseModel):
+    id: Optional[int] = 0
+    name: Optional[str] = None
+    description: Optional[str] = None
+    price: Optional[int] = None
+
+
+class ProductCreateBody(BaseModel):
+    name: str
+    description: str
+    price: int
+
+
+class ProductUpdateBody(BaseModel):
+    name: Optional[str] = ""
+    description: Optional[str] = ""
+    price: int | str = ""
+# ---------------------------------------------------------------------------------------
+
+
+# schemas are used when : get(GET) a OrderProductAssociation(Base)
+class AssociationGetQuery(BaseModel):
+    id: Optional[int] = 0
+    count: Optional[int] = 0
+    unit_price: Optional[int] = 0
+    order_id: Optional[int] = 0
+    product_id: Optional[int] = 0
+# ---------------------------------------------------------------------------------------
+
+
+# ***************************************************************************************
+# RESPONSE : response_model from dataBase =================================================
+# ---------------------------------------------------------------------------------------
+class OrderProductBase(BaseModel):
+    class Config:
+        from_attributes = True
+# ---------------------------------------------------------------------------------------
+
+
+# schema is used as a response_model for Order(Base)
+class OrderResp(OrderProductBase):
+    id: int
+    created_at: datetime
+    promocode: str
+
+
+# schema is used as a response_model for Product(Base)
+class ProductResp(OrderProductBase):
+    id: int
+    name: str
+    description: str
+    price: int
+
+
+# schema is used as a response_model for OrderProductAssociation(Base)
+class AssociationResp(BaseModel):
+    id: int
+    count: int
+    unit_price: int
+    order_id: int
+    product_id: int
+# ---------------------------------------------------------------------------------------
+
+
+# ---------------------------------------------------------------------------------------
+# schema Product Response = with -> relationship('Order', secondary='order_product_association')
+class ProductRespWithOrders(ProductResp):
+    orders: List[OrderResp]
+
+
+class ProductRespWithsAssoc(ProductResp):
+    orders_details: List[AssociationResp]
+
+
+class ProductRespWithOrdersAssoc(ProductResp):
+    orders: List[OrderResp]
+    orders_details: List[AssociationResp]
+# ---------------------------------------------------------------------------------------
+
+
+# ---------------------------------------------------------------------------------------
+# schema Order Response = with -> relationship('Product', secondary='order_product_association')
+class OrderRespWithProducts(OrderResp):
+    products: List[ProductResp]
+
+
+class OrderRespWithAssoc(OrderResp):
+    products_details: List[AssociationResp]
+
+
+class OrderRespWithProductsAssoc(OrderResp):
+    products: List[ProductResp]
+    products_details: List[AssociationResp]
+
+
+class OrderRespWithProductsDetails(OrderResp):
+    products: List[ProductRespWithsAssoc]
+# ---------------------------------------------------------------------------------------
+
+
+# ---------------------------------------------------------------------------------------
+class TypeResponse(int, Enum):
+    a = 1
+    b = 2
+    c = 3
+    d = 4

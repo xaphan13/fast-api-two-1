@@ -1,0 +1,78 @@
+version: "3.7"
+
+services:
+
+#----------------------------------------------------------------------------------
+    app_first:
+        container_name: app_first_new
+        build:
+            context: .
+            dockerfile: app11/Docker-app11
+        command: bash -c "uvicorn app11.main:app --host 0.0.0.0 --port 8000 --reload"
+        networks:
+            my_network:
+                ipv4_address: 172.20.0.11
+        volumes:
+            - ${PATH_LOG_APP11}:/fast-api-2/app11/log
+        env_file:
+            - ./app11/dock_app1.env
+        restart: always
+
+#----------------------------------------------------------------------------------
+    app_two:
+        container_name: app_two_new
+        build:
+            context: .
+            dockerfile: app22/Docker-app22
+        command: bash -c "uvicorn app22.main:app --host 0.0.0.0 --port 9000 --reload"
+        networks:
+            my_network:
+                ipv4_address: 172.20.0.22
+        volumes:
+            - ${PATH_LOG_APP22}:/fast-api-2/app22/log
+            - ${PATH_FILE_STORE_APP22}:/fast-api-2/fileStore
+        env_file:
+            - ./app22/dock_app2.env
+        restart: always
+
+#----------------------------------------------------------------------------------
+    celery_worker:
+        container_name: celery_worker_new
+        build:
+            context: .
+            dockerfile: ./app11/Docker-app11-celery
+        command: ['celery', '-A', 'celery_tasks.celery_worker.celery', 'worker', '-l', 'info', '-f', 'log/celery11.log']
+        networks:
+            my_network:
+                ipv4_address: 172.20.0.31
+        volumes:
+            - ${PATH_LOG_CELERY11}:/app11/log
+        env_file:
+            - ./app11/dock_app1.env
+        environment:
+            - LOG_DIR=./log
+            - LOG_FILE=celery_fast2_11.log
+
+#----------------------------------------------------------------------------------
+    celery_two:
+        container_name: celery_two_new
+        build:
+            context: .
+            dockerfile: ./app22/Docker-app22-celery
+        command: ['celery', '-A', 'celery_tasks.celery_worker.celery', 'worker', '-l', 'info', '-f', 'log/celery22.log']
+        networks:
+            my_network:
+                ipv4_address: 172.20.0.32
+        volumes:
+            - ${PATH_LOG_CELERY22}:/app22/log
+        env_file:
+            - ./app22/dock_app2.env
+        environment:
+            - LOG_DIR=./log
+            - LOG_FILE=celery_fast2_22.log
+
+#----------------------------------------------------------------------------------
+networks:
+    my_network:
+        name: app_net_new
+        external: true

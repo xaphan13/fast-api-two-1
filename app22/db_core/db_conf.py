@@ -1,0 +1,45 @@
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from app22.core.config import DATABASE_URL
+
+# """this is so that alembic can see the models and create tables"""
+from app22.db_core.model.model_new_tasks import *
+from app22.db_core.model.model_new_ex_db import *
+from app22.db_core.model.model_new_many_db import *
+from app22.db_core.model.model_join import *
+from app22.db_core.model.temp_admin import *
+from app22.db_core.model.model_reader_book import *
+from app22.db_core.model.model_reader_assoc import *
+
+from app22.db_core.base import Base
+
+
+class SessionDB:
+    """methods for working with the database"""
+
+    # """URL в файле config.py"""
+    engine = create_engine(DATABASE_URL, pool_pre_ping=True, echo=True)
+
+    # """будет использоваться для создания сессий базы данных"""
+    sessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+    @staticmethod
+    def get_models():
+        """this is so that alembic can see the models and create tables"""
+        return (Base, TaskOne, TaskTwo, User, Post, JoinPerson, JoinAddress,
+                Order, Product, OrderProductAssociation, Admin_list, Admin_work,
+                Reader, ListBook, Book, Category,
+                ListBookAssociation, BookCategoryAssociation)
+
+    @staticmethod
+    def get_db():
+        """Dependency for getting session"""
+        db = SessionDB.sessionLocal()
+        try:
+            yield db
+        finally:
+            db.close()
+
+    @staticmethod
+    def get_session():
+        return SessionDB.sessionLocal()

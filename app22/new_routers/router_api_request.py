@@ -1,0 +1,38 @@
+from app22.logger_core.config_logger import ConfigLogger
+from fastapi import APIRouter, HTTPException
+from datetime import datetime
+
+from app22.celery_tasks.Class_client_https import RespServer, main_weather_create_task, main_weather_await
+from app22.new_routers.schema_new_tasks import WeatherBodyReq
+
+
+logFC = ConfigLogger.getLogger("FileStdout", "api_request")
+
+
+api_request = APIRouter(prefix="/api_request", tags=["NEW api_request"])
+
+
+@api_request.post("/weather_create_task", response_model=RespServer)
+async def weather_create_task(body: WeatherBodyReq):
+    logFC.info(f"POST/weather_create_task : {datetime.utcnow()} : \n{body.dict()}")
+
+    result: RespServer = await main_weather_create_task(body.q, body.APPID)
+
+    logFC.info(f"POST/weather_create_task : {datetime.utcnow()} : res \n{result}")
+
+    if result is None:
+        raise HTTPException(status_code=500, detail="Task 'weather_create_task' execution failed")
+    return result
+
+
+@api_request.post("/weather_await_response", response_model=RespServer)
+async def weather_await_response(body: WeatherBodyReq):
+    logFC.info(f"POST/weather_await_response : {datetime.utcnow()} : \n{body.dict()}")
+
+    result: RespServer = await main_weather_await(body.q, body.APPID)
+
+    logFC.info(f"POST/weather_await_response : {datetime.utcnow()} : res \n{result}")
+
+    if result is None:
+        raise HTTPException(status_code=500, detail="Task 'weather_await_response' execution failed")
+    return result

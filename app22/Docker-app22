@@ -1,0 +1,12 @@
+FROM python:3.11
+
+ENV PYTHONUNBUFFERED=1
+
+WORKDIR /fast-api-2
+
+COPY alembic.ini /fast-api-2/alembic.ini
+COPY requirements.txt /fast-api-2/requirements.txt
+RUN pip3 install --upgrade pip
+RUN pip3 install -r requirements.txt
+
+COPY ./app22 /fast-api-2/app22

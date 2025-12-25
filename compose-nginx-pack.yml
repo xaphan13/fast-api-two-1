@@ -1,0 +1,144 @@
+version: "3.7"
+
+services:
+
+#----------------------------------------------------------------------------------
+    db:
+        container_name: postgresql_db_new
+        image: postgres
+        restart: always
+        networks:
+            my_network:
+                ipv4_address: 172.20.0.2
+        ports:
+            - "7032:5432"
+        environment:
+            - POSTGRES_USER=${DB_USER}
+            - POSTGRES_PASSWORD=${DB_PASSWORD}
+            - POSTGRES_DB=${DB_NAME}
+        volumes:
+            - ./pg_db:/var/lib/postgresql/data/
+
+#----------------------------------------------------------------------------------
+    redis:
+        container_name: redis_new
+
+        image: redis:6.2-alpine
+        networks:
+            my_network:
+                ipv4_address: 172.20.0.4
+        ports:
+            - "7079:6379"
+
+#----------------------------------------------------------------------------------
+    app_first:
+        container_name: app_first_new
+        build:
+            context: .
+            dockerfile: app11/Docker-app11
+        command: bash -c "uvicorn app11.main:app --host 0.0.0.0 --port 8000 --reload"
+        networks:
+            my_network:
+                ipv4_address: 172.20.0.11
+        volumes:
+            - ./app11/log_app:/fast-api-2/app11/log
+        env_file:
+            - ./app11/dock_app1.env
+        environment:
+            - OPEN_API_PREFIX=${OPEN_API_PREFIX_APP11}
+        restart: always
+        depends_on:
+            - redis
+            - db
+            - celery_worker
+
+#----------------------------------------------------------------------------------
+    app_two:
+        container_name: app_two_new
+        build:
+            context: .
+            dockerfile: app22/Docker-app22
+        command: bash -c "uvicorn app22.main:app --host 0.0.0.0 --port 9000 --reload"
+        networks:
+            my_network:
+                ipv4_address: 172.20.0.22
+        volumes:
+            - ./app22/log_app:/fast-api-2/app22/log
+            - ${PATH_FILE_STORE_APP22}:/fast-api-2/fileStore
+        env_file:
+            - ./app22/dock_app2.env
+        environment:
+            - OPEN_API_PREFIX=${OPEN_API_PREFIX_APP22}
+        restart: always
+        depends_on:
+            - redis
+            - db
+            - celery_two
+
+#----------------------------------------------------------------------------------
+    celery_worker:
+        container_name: celery_worker_new
+        build:
+            context: .
+            dockerfile: ./app11/Docker-app11-celery
+        command: ['celery', '-A', 'celery_tasks.celery_worker.celery', 'worker', '-l', 'info', '-f', 'log/celery11.log']
+        networks:
+            my_network:
+                ipv4_address: 172.20.0.31
+        volumes:
+            - ./app11/log_celery:/app11/log
+        env_file:
+            - ./app11/dock_app1.env
+        environment:
+            - LOG_DIR=./log
+            - LOG_FILE=celery_fast2_11.log
+        depends_on:
+            - redis
+
+#----------------------------------------------------------------------------------
+    celery_two:
+        container_name: celery_two_new
+        build:
+            context: .
+            dockerfile: ./app22/Docker-app22-celery
+        command: ['celery', '-A', 'celery_tasks.celery_worker.celery', 'worker', '-l', 'info', '-f', 'log/celery22.log']
+        networks:
+            my_network:
+                ipv4_address: 172.20.0.32
+        volumes:
+            - ./app22/log_celery:/app22/log
+        env_file:
+            - ./app22/dock_app2.env
+        environment:
+            - LOG_DIR=./log
+            - LOG_FILE=celery_fast2_22.log
+        depends_on:
+            - redis
+
+#----------------------------------------------------------------------------------
+    nginx:
+        container_name: nginx_new
+        build:
+            context: .
+            dockerfile: ./nginx/Docker-nginx
+        networks:
+            my_network:
+                ipv4_address: 172.20.0.8
+        ports:
+            - "443:443"
+        restart: always
+        depends_on:
+            - app_first
+            - app_two
+
+#----------------------------------------------------------------------------------
+networks:
+    my_network:
+        name: app_net_new
+        external: true
+
+#        ipam:
+#            config:
+#                - subnet: 172.20.0.0/16
+#   docker network create -d bridge --subnet=172.20.0.0/16
+#   --ip-range=172.20.0.0/16 --gateway=172.20.0.1 app_net_new
