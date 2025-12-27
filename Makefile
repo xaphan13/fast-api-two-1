@@ -15,6 +15,20 @@ run_app22_win:
 
 
 
+#************************************ run - uvicorn - app
+where_py:
+	where.exe python
+
+#************************************ run - uvicorn - app
+virtual_env:
+	$env:VIRTUAL_ENV
+
+#************************************ run - uvicorn - app
+py_version:
+	python --version
+
+
+
 #************************************ create - 172.20.0.0/16 - docker network
 create-net:
 	docker network create -d bridge --subnet=172.20.0.0/16 --ip-range=172.20.0.0/16 --gateway=172.20.0.1 app_net_new

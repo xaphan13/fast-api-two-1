@@ -1,3 +1,5 @@
+from typing import Any, AsyncGenerator
+
 from sqlalchemy.ext.asyncio import (create_async_engine, AsyncSession,
                                     async_sessionmaker, async_scoped_session)
 from asyncio import current_task
@@ -23,7 +25,7 @@ class AsyncSessionDB:
         return Base, TaskOne, TaskTwo, User, Post,       \
                Order, Product, OrderProductAssociation
 
-    async def get_db(self) -> AsyncSession:
+    async def get_db(self) -> AsyncGenerator[AsyncSession, Any]:
         """Dependency for getting session"""
         session: AsyncSession = self.async_session()
         try:
@@ -34,7 +36,7 @@ class AsyncSessionDB:
     def get_session(self) -> AsyncSession:
         return self.async_session()
 
-    async def scop_db(self) -> AsyncSession:
+    async def scop_db(self) -> AsyncGenerator[AsyncSession, Any]:
         """Dependency for getting session"""
         session: AsyncSession = self.async_scoped()
         try:
