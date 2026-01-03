@@ -61,6 +61,14 @@ function git--lang_en() {
 
 
 
+#***********************************************************************
+# execute_command "git branch -a"
+#-----------------------------------------------------------------------
+function git--remote() {
+  execute_command "git remote -v"
+}
+#***********************************************************************
+
 
 #***********************************************************************
 # execute_command "git branch -a"
@@ -106,6 +114,7 @@ function cmd--help() {
 	  cmd:  br        -->  "git branch -a"
 	  cmd:  st        -->  "git status"
 	  cmd:  brst      -->  "git branch -a" and "git status"
+	  cmd:  rembrst   -->  "git remote -v" and "git branch -a" and "git status"
 	  cmd:  commit    -->  "git commit -a"
 	  cmd:  push_two  -->  "git push origin two_app"
 	EOF
@@ -132,16 +141,20 @@ case "$cmd_action" in
 		git--commit
 		;;
   brst)
-    clear
+		git--branch
+		git--status
+		;;
+  rembrst)
+    git--remote
 		git--branch
 		git--status
 		;;
   br)
-    clear
+#    clear
 		git--branch
 		;;
   st)
-    clear
+#    clear
 		git--status
 		;;
   lang)
