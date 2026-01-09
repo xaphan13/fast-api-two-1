@@ -9,17 +9,17 @@
 /app11/*.env
 *.env
 
-/app22/dock_up
-/app22/fileStore
+/app22/dock_up/
+/app22/fileStore/
 
-/app22/log_app
-/app22/log_celery
-/app11/log_app
-/app11/log_celery
+/app22/log_app/
+/app22/log_celery/
+/app11/log_app/
+/app11/log_celery/
 
-/app22/log
-/app11/log
-/log
+/app22/log/
+/app11/log/
+/log/
 
 /app22/*.log
 /app11/*.log
@@ -29,10 +29,12 @@
 /app11/__pycache__
 __pycache__
 
-/pg_db
-/venv
+pg_db/
+venv/
 .git
 .idea
+.venv/
+.ruff_cache/
 
 compose-flower.yml.yml
 compose-nginx-pack.yml
